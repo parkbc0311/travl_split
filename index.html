@@ -478,7 +478,13 @@ function renderExpenses(){
   }).join('');
 }
 
-function deleteExpense(idx){expenses.splice(idx,1);renderExpenses();updateSummary();updateLabel();}
+function deleteExpense(idx){
+  expenses.splice(idx,1);
+  renderExpenses();
+  updateSummary();
+  updateLabel();
+  saveData({ members, expenses });
+}
 
 function updateSummary(){
   const shared=expenses.filter(e=>e.type==='shared');
@@ -552,9 +558,24 @@ function switchTab(name){
   if(name==='add') renderExcludeChips();
 }
 
+async function initAppData() {
+  try {
+    const data = await loadData();
+    if (data) {
+      members = Array.isArray(data.members) ? data.members : [];
+      expenses = Array.isArray(data.expenses) ? data.expenses : [];
+    }
+  } catch (error) {
+    console.error('데이터 로드 실패:', error);
+  }
+  renderMembers();
+  renderExpenses();
+  updateSummary();
+}
+
 document.getElementById('new-member').addEventListener('keydown',e=>{if(e.key==='Enter')addMember();});
 setType('shared');
-renderMembers();
+initAppData();
 </script>
   
 <script type="module">
@@ -574,12 +595,22 @@ renderMembers();
   const db = getFirestore(app);
 
   async function saveData(data) {
-    await setDoc(doc(db, "trips", "shared"), data);
+    try {
+      await setDoc(doc(db, "trips", "shared"), data);
+    } catch (error) {
+      console.error('데이터 저장 실패:', error);
+      alert('데이터 저장에 실패했습니다. 콘솔을 확인하세요.');
+    }
   }
 
   async function loadData() {
-    const snap = await getDoc(doc(db, "trips", "shared"));
-    if (snap.exists()) return snap.data();
+    try {
+      const snap = await getDoc(doc(db, "trips", "shared"));
+      return snap.exists() ? snap.data() : null;
+    } catch (error) {
+      console.error('데이터 로드 실패:', error);
+      return null;
+    }
   }
 
   window.saveData = saveData;
