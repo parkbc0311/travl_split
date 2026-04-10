@@ -404,7 +404,7 @@ function addMember(){
   const inp=document.getElementById('new-member');
   const name=inp.value.trim();
   if(!name||members.includes(name)){inp.value='';return;}
-  members.push(name); inp.value=''; renderMembers();
+  members.push(name); saveData({ members, expenses }); inp.value=''; renderMembers();
 }
 
 function removeMember(i){
@@ -415,6 +415,7 @@ function removeMember(i){
     included:e.included?e.included.filter(x=>x!==i).map(x=>x>i?x-1:x):null
   }));
   renderMembers(); renderExpenses(); updateSummary();
+  saveData({ members, expenses }); 
 }
 
 function addExpense(){
@@ -431,6 +432,7 @@ function addExpense(){
     if(included.length===0){alert('최소 1명 이상 포함돼야 해요.');return;}
   }
   expenses.push({name,amount,cur,pi,memo,type,included,id:Date.now()});
+  saveData({ members, expenses });
   document.getElementById('exp-name').value='';
   document.getElementById('exp-amount').value='';
   document.getElementById('exp-memo').value='';
