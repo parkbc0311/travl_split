@@ -554,13 +554,11 @@ document.getElementById('new-member').addEventListener('keydown',e=>{if(e.key===
 setType('shared');
 renderMembers();
 </script>
-  <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
+  
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  // Your web app's Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyC5yI3Xo_yXYmtXmh6nvREaoeYaDvIHvvY",
     authDomain: "travel-split-334bd.firebaseapp.com",
@@ -570,8 +568,21 @@ renderMembers();
     appId: "1:545154937738:web:96d2fd35511dde670bce73"
   };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  async function saveData(data) {
+    await setDoc(doc(db, "trips", "shared"), data);
+  }
+
+  async function loadData() {
+    const snap = await getDoc(doc(db, "trips", "shared"));
+    if (snap.exists()) return snap.data();
+  }
+
+  window.saveData = saveData;
+  window.loadData = loadData;
 </script>
+  
 </body>
 </html>
